@@ -1,0 +1,190 @@
+/**
+ * IF<условие>THEN<присваивание>
+ * ELSIF<условие>THEN<присваивание>
+ * ELSE<присваивание>END
+ * 
+ * <условие> ::= <левая часть>[< операция отношения><правая часть>]
+ * <присваивание> ::= <левая часть> := <правая часть>
+ * <левая часть> ::=  <идентификатор>
+ * <операция отношения> :: = < | > | =
+ * <правая часть> ::= <константа>|<идентификатор>
+ * <идентификатор> - последовательность символов языка начинается с буквы, включает последовательность букв, цифр
+ * <константа> - целое число, либо число с фиксированной точкой, учесть отсутствие незначащих нулей
+ * 
+ * 
+ * IF  R1 THEN  S1 := G  ELSIF  R2 < 0  THEN  D:= GFD  ELSIF  R6 = R5 THEN  S4 := 15.3 ELSE  GF := DCSX15  END;
+ * IF  X = 0  THEN  S := 0  END;
+ * IF  K > 10  THEN  F := 500.67  ELSE  h := f  END;
+ */
+digraph Graph {
+    compound = "true";
+    
+    Start -> Start [label = "Space";];
+    Start -> "<IF>" [label = "<IF>";];
+    "<IF>" -> "<SpacesAfterIF>" [label = "<Spaces>";];
+    "<SpacesAfterIF>" -> "<Conditional>" [label = "<Conditional>";];
+    "<Conditional>" -> "<SpacesAfterConditional>" [label = "<Spaces>";];
+    "<SpacesAfterConditional>" -> "<THEN>" [label = "<THEN>";];
+    "<THEN>" -> "<SpacesAfterTHEN>" [label = "<Spaces>";];
+    "<SpacesAfterTHEN>" -> "<Assignment>" [label = "<Assignment>";];
+    "<Assignment>" -> "<SpacesAfterAssignment>" [label = "<Spaces>";];
+    "<SpacesAfterAssignment>" -> "<END>" [label = "<END>";];
+    "<SpacesAfterAssignment>" -> "<ELSIF>" [label = "<ELSEIF>";];
+    "<ELSIF>" -> "<SpacesAfterIF>" [label = "<Spaces>";];
+    "<SpacesAfterAssignment>" -> "<ELSE>" [label = "<ELSE>";];
+    "<ELSE>" -> "<SpacesAfterELSE>" [label = "<Spaces>";];
+    "<SpacesAfterELSE>" -> "<AssignmentAfterElse>" [label = "<Assignment>";];
+    "<AssignmentAfterElse>" -> "<SpacesBeforeEND>" [label = "<Spaces>";];
+    "<SpacesBeforeEND>" -> "<END>" [label = "<END>";];
+    "<END>" -> Finish [label = ";";];
+    
+    // StartIdentifier -> "<FirstIdentifier>" [ltail = "clusterIdentifier";];
+    // StartIdentifier -> "<SecondIdentifier>" [ltail = "clusterIdentifier";];
+    // StartIdentifier -> "<Identifier>" [ltail = "clusterIdentifier";];
+    subgraph clusterIdentifier {
+        label = Identifier;
+        StartIdentifier [label = S;];
+        FinishIdentifier [label = F;];
+        StartIdentifier -> Letter [label = "a...z";];
+        Letter -> Symbol [label = "a...z0...9";];
+        Symbol -> Symbol [label = "a...z0...9";];
+        Letter -> FinishIdentifier;
+        Symbol -> FinishIdentifier;
+    }
+    
+    // StartConstant -> "<Constant>" [ltail = "clusterConstant";];
+    // StartConstant -> "<ConstantValue>" [ltail = "clusterConstant";];
+    subgraph clusterConstant {
+        label = Constant;
+        StartConstant [label = S;];
+        FinishConstant [label = F;];
+        StartConstant -> Sign [label = "+ | -";];
+        Sign -> FirstDigit [label = "1...9";];
+        Sign -> Zero [label = "0";];
+        StartConstant -> Zero [label = "0";];
+        Zero -> Point [label = ".";];
+        FirstDigit -> Digit [label = "0...9";];
+        FirstDigit -> Point [label = ".";];
+        Digit -> Digit [label = "0...9";];
+        Digit -> Point [label = ".";];
+        StartConstant -> FirstDigit [label = "1...9";];
+        Point -> DigitAfterPoint [label = "0...9";];
+        DigitAfterPoint -> DigitAfterPoint [label = "0...9";];
+        DigitAfterPoint -> FinishConstant;
+        FirstDigit -> FinishConstant;
+        Digit -> FinishConstant;
+        Zero -> FinishConstant;
+    }
+    
+    // StartConditional -> "<Conditional>" [ltail = "clusterConditional";];
+    subgraph clusterConditional {
+        label = Conditional;
+        StartConditional [label = S;];
+        FinishConditional [label = F;];
+        StartConditional -> "<FirstIdentifier>" [label = "<Identifier>";];
+        "<FirstIdentifier>" -> FinishConditional;
+        "<FirstIdentifier>" -> "<SpacesAfterFirstIdentifier>" [label = "<Spaces>";];
+        "<SpacesAfterFirstIdentifier>" -> Operator [label = "< | > | =";];
+        "<FirstIdentifier>" -> Operator [label = "< | > | =";];
+        Operator -> "<SpacesAfterOperator>" [label = "<Spaces>";];
+        "<SpacesAfterOperator>" -> "<SecondIdentifier>" [label = "<Identifier>";];
+        Operator -> "<SecondIdentifier>" [label = "<Identifier>";];
+        "<SpacesAfterOperator>" -> "<Constant>" [label = "<Constant>";];
+        Operator -> "<Constant>" [label = "<Constant>";];
+        {"<SecondIdentifier>" "<Constant>"} -> FinishConditional;
+    }
+    
+    
+    
+    // StartAssignment -> "<Assignment>" [ltail = "clusterAssignment";];
+    // StartAssignment -> "<AssignmentAfterElse>" [ltail = "clusterAssignment";];
+    subgraph clusterAssignment {
+        label = Assignment;
+        StartAssignment [label = S;];
+        FinishAssignment [label = F;];
+        StartAssignment -> "<Identifier>" [label = "<Identifier>";];
+        "<Identifier>" -> "<SpacesAfterIdentifier>" [label = "<Spaces>";];
+        "<Identifier>" -> AssignmentOperator1 [label = ":";];
+        "<SpacesAfterIdentifier>" -> AssignmentOperator1 [label = ":";];
+        AssignmentOperator1 -> AssignmentOperator2 [label = "=";];
+        AssignmentOperator2 -> "<SpacesAfterAssignmentOperator>" [label = "<Spaces>";];
+        "<SpacesAfterAssignmentOperator>" -> "<Value>" [label = "<Identifier>";];
+        "<SpacesAfterAssignmentOperator>" -> "<ConstantValue>" [label = "<Constant>";];
+        AssignmentOperator2 -> "<Value>" [label = "<Identifier>";];
+        AssignmentOperator2 -> "<ConstantValue>" [label = "<Constant>";];
+        {"<Value>" "<ConstantValue>"} -> FinishAssignment;
+    }
+    
+    // StartSpaces -> "<SpacesAfterIF>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterConditional>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterTHEN>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterFirstIdentifier>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterOperator>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterIdentifier>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterAssignmentOperator>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterAssignment>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesAfterELSE>" [ltail = "clusterSpaces";];
+    // StartSpaces -> "<SpacesBeforeEnd>" [ltail = "clusterSpaces";];
+    subgraph clusterSpaces {
+        label = Spaces;
+        StartSpaces [label = S;];
+        EndSpaces [label = F;];
+        StartSpaces -> Space [label = Space;];
+        Space -> Space [label = Space;];
+        Space -> EndSpaces;
+    }
+    
+    // StartIF -> "<IF>" [ltail = "clusterIF";];
+    subgraph clusterIF {
+        label = IF;
+        StartIF [label = S;];
+        FinishIF [label = F;];
+        StartIF -> IF1 [label = I;];
+        IF1 -> IF2 [label = F;];
+        IF2 -> FinishIF;
+    }
+    // StartTHEN -> "<THEN>" [ltail = "clusterTHEN";];
+    subgraph clusterTHEN {
+        label = THEN;
+        StartTHEN [label = S;];
+        FinishTHEN [label = F;];
+        StartTHEN -> THEN1 [label = T;];
+        THEN1 -> THEN2 [label = H;];
+        THEN2 -> THEN3 [label = E;];
+        THEN3 -> THEN4 [label = N;];
+        THEN4 -> FinishTHEN;
+    }
+    // StartELSIF -> "<ELSIF>" [ltail = "clusterELSIF";];
+    subgraph clusterELSIF {
+        label = ELSIF;
+        StartELSIF [label = S;];
+        FinishELSIF [label = F;];
+        StartELSIF -> ELSIF1 [label = E;];
+        ELSIF1 -> ELSIF2 [label = L;];
+        ELSIF2 -> ELSIF3 [label = S;];
+        ELSIF3 -> ELSIF4 [label = I;];
+        ELSIF4 -> ELSIF5 [label = F;];
+        ELSIF5 -> FinishELSIF;
+    }
+    // StartELSE -> "<ELSE>" [ltail = "clusterELSE";];
+    subgraph clusterELSE {
+        label = ELSE;
+        StartELSE [label = S;];
+        FinishELSE [label = F;];
+        StartELSE -> ELSE1 [label = E;];
+        ELSE1 -> ELSE2 [label = L;];
+        ELSE2 -> ELSE3 [label = S;];
+        ELSE3 -> ELSE4 [label = E;];
+        ELSE4 -> FinishELSE;
+    }
+    // StartEND -> "<END>" [ltail = "clusterEND";];
+    subgraph clusterEND {
+        label = END;
+        StartEND [label = S;];
+        FinishEND [label = F;];
+        StartEND -> END1 [label = E;];
+        END1 -> END2 [label = N;];
+        END2 -> END3 [label = D;];
+        END3 -> FinishEND;
+    }
+}
