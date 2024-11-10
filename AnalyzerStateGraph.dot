@@ -19,6 +19,9 @@
 digraph Graph {
     compound = "true";
     
+    Start [label = S;];
+    Finish [label = F;];
+    
     Start -> Start [label = "Space";];
     Start -> "<IF>" [label = "<IF>";];
     "<IF>" -> "<SpacesAfterIF>" [label = "<Spaces>";];
@@ -36,7 +39,7 @@ digraph Graph {
     "<SpacesAfterELSE>" -> "<AssignmentAfterElse>" [label = "<Assignment>";];
     "<AssignmentAfterElse>" -> "<SpacesBeforeEND>" [label = "<Spaces>";];
     "<SpacesBeforeEND>" -> "<END>" [label = "<END>";];
-    "<END>" -> Finish [label = ";";];
+    "<END>" -> Finish [label = " ;";];
     
     // StartIdentifier -> "<FirstIdentifier>" [ltail = "clusterIdentifier";];
     // StartIdentifier -> "<SecondIdentifier>" [ltail = "clusterIdentifier";];
@@ -134,57 +137,61 @@ digraph Graph {
         Space -> EndSpaces;
     }
     
-    // StartIF -> "<IF>" [ltail = "clusterIF";];
-    subgraph clusterIF {
-        label = IF;
-        StartIF [label = S;];
-        FinishIF [label = F;];
-        StartIF -> IF1 [label = I;];
-        IF1 -> IF2 [label = F;];
-        IF2 -> FinishIF;
-    }
-    // StartTHEN -> "<THEN>" [ltail = "clusterTHEN";];
-    subgraph clusterTHEN {
-        label = THEN;
-        StartTHEN [label = S;];
-        FinishTHEN [label = F;];
-        StartTHEN -> THEN1 [label = T;];
-        THEN1 -> THEN2 [label = H;];
-        THEN2 -> THEN3 [label = E;];
-        THEN3 -> THEN4 [label = N;];
-        THEN4 -> FinishTHEN;
-    }
-    // StartELSIF -> "<ELSIF>" [ltail = "clusterELSIF";];
-    subgraph clusterELSIF {
-        label = ELSIF;
-        StartELSIF [label = S;];
-        FinishELSIF [label = F;];
-        StartELSIF -> ELSIF1 [label = E;];
-        ELSIF1 -> ELSIF2 [label = L;];
-        ELSIF2 -> ELSIF3 [label = S;];
-        ELSIF3 -> ELSIF4 [label = I;];
-        ELSIF4 -> ELSIF5 [label = F;];
-        ELSIF5 -> FinishELSIF;
-    }
-    // StartELSE -> "<ELSE>" [ltail = "clusterELSE";];
-    subgraph clusterELSE {
-        label = ELSE;
-        StartELSE [label = S;];
-        FinishELSE [label = F;];
-        StartELSE -> ELSE1 [label = E;];
-        ELSE1 -> ELSE2 [label = L;];
-        ELSE2 -> ELSE3 [label = S;];
-        ELSE3 -> ELSE4 [label = E;];
-        ELSE4 -> FinishELSE;
-    }
-    // StartEND -> "<END>" [ltail = "clusterEND";];
-    subgraph clusterEND {
-        label = END;
-        StartEND [label = S;];
-        FinishEND [label = F;];
-        StartEND -> END1 [label = E;];
-        END1 -> END2 [label = N;];
-        END2 -> END3 [label = D;];
-        END3 -> FinishEND;
+    subgraph clusterKeywords {
+        label = Keywords;
+        
+        // StartIF -> "<IF>" [ltail = "clusterIF";];
+        subgraph clusterIF {
+            label = IF;
+            StartIF [label = S;];
+            FinishIF [label = F;];
+            StartIF -> IF1 [label = I;];
+            IF1 -> IF2 [label = F;];
+            IF2 -> FinishIF;
+        }
+        // StartTHEN -> "<THEN>" [ltail = "clusterTHEN";];
+        subgraph clusterTHEN {
+            label = THEN;
+            StartTHEN [label = S;];
+            FinishTHEN [label = F;];
+            StartTHEN -> THEN1 [label = T;];
+            THEN1 -> THEN2 [label = H;];
+            THEN2 -> THEN3 [label = E;];
+            THEN3 -> THEN4 [label = N;];
+            THEN4 -> FinishTHEN;
+        }
+        // StartELSIF -> "<ELSIF>" [ltail = "clusterELSIF";];
+        subgraph clusterELSIF {
+            label = ELSIF;
+            StartELSIF [label = S;];
+            FinishELSIF [label = F;];
+            StartELSIF -> ELSIF1 [label = E;];
+            ELSIF1 -> ELSIF2 [label = L;];
+            ELSIF2 -> ELSIF3 [label = S;];
+            ELSIF3 -> ELSIF4 [label = I;];
+            ELSIF4 -> ELSIF5 [label = F;];
+            ELSIF5 -> FinishELSIF;
+        }
+        // StartELSE -> "<ELSE>" [ltail = "clusterELSE";];
+        subgraph clusterELSE {
+            label = ELSE;
+            StartELSE [label = S;];
+            FinishELSE [label = F;];
+            StartELSE -> ELSE1 [label = E;];
+            ELSE1 -> ELSE2 [label = L;];
+            ELSE2 -> ELSE3 [label = S;];
+            ELSE3 -> ELSE4 [label = E;];
+            ELSE4 -> FinishELSE;
+        }
+        // StartEND -> "<END>" [ltail = "clusterEND";];
+        subgraph clusterEND {
+            label = END;
+            StartEND [label = S;];
+            FinishEND [label = F;];
+            StartEND -> END1 [label = E;];
+            END1 -> END2 [label = N;];
+            END2 -> END3 [label = D;];
+            END3 -> FinishEND;
+        }
     }
 }
