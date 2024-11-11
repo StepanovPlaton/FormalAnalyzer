@@ -1,30 +1,33 @@
-import 'package:formal_analyzer/analyzer/exceptions.dart';
-import 'package:formal_analyzer/analyzer/result.dart';
-import 'package:formal_analyzer/analyzer/types.dart';
+import 'package:formal_analyzer/analyzer/analyzer.dart';
+import 'package:formal_analyzer/analyzer/types/exceptions.dart';
+import 'package:formal_analyzer/analyzer/types/result.dart';
+import 'package:formal_analyzer/analyzer/types/types.dart';
 
-enum Keyword {
-  IF, THEN, ELSIF, ELSE, END
-}
+enum Keyword { IF, THEN, ELSIF, ELSE, END }
 
 extension PrettyKeywords on Keyword {
   String get pretty {
-    String pretty = name;
+    String pretty = "";
     if (this == Keyword.THEN) {
-      pretty += "\n";
+      pretty += "$name\n\t";
+    } else if (this == Keyword.ELSIF || this == Keyword.ELSE) {
+      pretty += "\n$name ";
+    } else if (this == Keyword.END) {
+      pretty += name;
     } else {
-      pretty += " ";
+      pretty += "$name ";
     }
     return pretty;
   }
 }
 
-class KeywordsAnalyzer implements PatternAnalyzer {
+class KeywordsAnalyzer implements Analyzer {
   final Keyword keyword;
   const KeywordsAnalyzer(this.keyword);
 
   @override
   AnalyzerInformation analyze(
-      AnalyzerPosition position, String code) {
+      AnalyzerPosition position, String code, AnalyzerResult result) {
     List<String> lines = code.split("\n");
     String codeLine = lines[position.$1];
     int linePosition = position.$2;
@@ -38,7 +41,7 @@ class KeywordsAnalyzer implements PatternAnalyzer {
       return (
         (position.$1, linePosition),
         null,
-        AnalyzerResult.keyword(keyword.pretty)
+        result.add(AnalyzerResult.keyword(keyword.pretty))
       );
     } else {
       return (
@@ -46,9 +49,9 @@ class KeywordsAnalyzer implements PatternAnalyzer {
         AnalyzerException((
           position.$1,
           linePosition
-        ), "${keyword.name} was expected, but only ${recognizedPattern+codeLine[linePosition]} was detected",
+        ), "${keyword.name} was expected, but only '${recognizedPattern + codeLine[linePosition]}' was detected",
             ExceptionType.syntactic),
-        null
+        result
       );
     }
   }

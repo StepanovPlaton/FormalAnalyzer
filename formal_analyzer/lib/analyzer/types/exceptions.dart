@@ -1,5 +1,5 @@
 
-import 'package:formal_analyzer/analyzer/types.dart';
+import 'package:formal_analyzer/analyzer/types/types.dart';
 
 enum ExceptionType { syntactic, semantic, unexpected }
 
@@ -11,7 +11,6 @@ class AnalyzerException {
   AnalyzerException(this.position, this.message, this.type);
 
   void display() {
-    print("An error has been detected!");
     print("Type: ${type!.name}");
     print("Message: $message");
   }
