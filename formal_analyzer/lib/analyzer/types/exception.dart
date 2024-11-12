@@ -5,12 +5,23 @@ enum AnalyzerExceptionType { syntactic, semantic, unexpected }
 class AnalyzerException {
   final AnalyzerPosition position;
   final String message;
-  final AnalyzerExceptionType? type;
+  late AnalyzerExceptionType type = AnalyzerExceptionType.unexpected;
 
-  AnalyzerException(this.position, this.message, this.type);
+  AnalyzerException(this.position, this.message);
 
   void display() {
-    print("Type: ${type!.name}");
+    print("Type: ${type.name}");
     print("Message: $message");
+  }
+}
+
+class SyntacticAnalyzerException extends AnalyzerException {
+  SyntacticAnalyzerException(super.position, super.message) {
+    type = AnalyzerExceptionType.syntactic;
+  }
+}
+class SemanticAnalyzerException extends AnalyzerException {
+  SemanticAnalyzerException(super.position, super.message) {
+    type = AnalyzerExceptionType.semantic;
   }
 }

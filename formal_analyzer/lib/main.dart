@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:formal_analyzer/analyzer/analyzers/graph.dart';
 import 'package:formal_analyzer/analyzer/analyzers/regexp.dart';
 import 'package:formal_analyzer/analyzer/analyzers/keyword.dart';
-import 'package:formal_analyzer/analyzer/types/result.dart';
+import 'package:formal_analyzer/analyzer/semantic.dart';
 import 'package:formal_analyzer/analyzer/types/graph.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
@@ -15,6 +15,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SemanticAnalyzer semanticAnalyzer = SemanticAnalyzer();
+
     List<GraphNode> identifierGraph = [
       GraphNode("Letter", RegExpAnalyzer("[a-zA-Z]"),
           {"[a-zA-Z0-9_]": 1, "[^a-zA-Z0-9_]": null}),
@@ -22,80 +24,120 @@ class MainApp extends StatelessWidget {
           {"[a-zA-Z0-9_]": 1, "[^a-zA-Z0-9_]": null})
     ];
     List<GraphNode> constantGraph = [
-      GraphNode("StartConstant", RegExpAnalyzer.spaces(),
+      GraphNode("StartConstant", RegExpAnalyzer(""),
           {"[+\\-]": 1, "[1-9]": 2, "0": 3}),
       GraphNode("Sign", RegExpAnalyzer("[+\\-]"), {"[1-2]": 2, "0": 3}),
       GraphNode("FirstDigit", RegExpAnalyzer("[1-9]"),
           {"[0-9]": 4, "\\.": 5, null: null}),
       GraphNode("Zero", RegExpAnalyzer("0"), {"\\.": 5, null: null}),
-      GraphNode(
-          "Digit", RegExpAnalyzer("[0-9]"), {"[0-9]": 4, "\\.": 5, null: null}),
+      GraphNode("Digit", RegExpAnalyzer("[0-9]"),
+          {"[0-9]": 4, "\\.": 5, null: null}),
       GraphNode("Point", RegExpAnalyzer("\\."), {"[0-9]": 6}),
-      GraphNode(
-          "DigitAfterPoint", RegExpAnalyzer("[0-9]"), {"[0-9]": 6, null: null})
+      GraphNode("DigitAfterPoint", RegExpAnalyzer("[0-9]"),
+          {"[0-9]": 6, null: null})
     ];
     List<GraphNode> assignmentGraph = [
-      GraphNode("<AssignmentLeftSide>",
-          GraphAnalyzer(AnalyzerGraph.identifier(identifierGraph)), {null: 1}),
+      GraphNode(
+          "<AssignmentLeftSide>",
+          GraphAnalyzer(
+              AnalyzerGraph(identifierGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.identifier),
+          {null: 1}),
       GraphNode(
           "<AssignmentOperator>",
-          GraphAnalyzer(AnalyzerGraph([
-            GraphNode("AssignmentOperator1", RegExpAnalyzer(":"), {null: 1}),
-            GraphNode("AssignmentOperator2", RegExpAnalyzer("="), {null: null}),
-          ], TypeOfTransition.symbol, Save.noSave)),
+          GraphAnalyzer(
+              AnalyzerGraph([
+                GraphNode("AssignmentOperator1", RegExpAnalyzer(":"),
+                    {null: 1}),
+                GraphNode("AssignmentOperator2", RegExpAnalyzer("="),
+                    {null: null}),
+              ], GraphTransition.toSymbol),
+              semanticAnalyzer.add),
           {"[a-zA-Z]": 2, "[+\\-\\d]": 3}),
       GraphNode(
           "<AssignmentRightIdentifier>",
-          GraphAnalyzer(AnalyzerGraph.identifier(identifierGraph)),
+          GraphAnalyzer(
+              AnalyzerGraph(identifierGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.identifier),
           {null: null}),
-      GraphNode("<AssignmentRightConstant>",
-          GraphAnalyzer(AnalyzerGraph.constant(constantGraph)), {null: null}),
+      GraphNode(
+          "<AssignmentRightConstant>",
+          GraphAnalyzer(AnalyzerGraph(constantGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.constant),
+          {null: null}),
     ];
 
-    Analyzer analyzer = GraphAnalyzer(AnalyzerGraph.root([
-      GraphNode("Start", RegExpAnalyzer.spaces(), {null: 1}),
-      const GraphNode("<IF>", KeywordsAnalyzer(Keyword.IF), {null: 2}),
+    Analyzer analyzer = GraphAnalyzer(AnalyzerGraph([
+      GraphNode("Start", RegExpAnalyzer(""), {null: 1}),
+      GraphNode(
+          "<IF>",
+          KeywordsAnalyzer(Keyword.IF, semanticAnalyzer.add),
+          {null: 2}),
       GraphNode(
           "<ConditionalLeftOperand>",
-          GraphAnalyzer(AnalyzerGraph.identifier(identifierGraph)),
+          GraphAnalyzer(
+              AnalyzerGraph(identifierGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.identifier),
           {"T": 6, null: 3}),
       GraphNode(
           "<ConditionalOperator>",
-          GraphAnalyzer(AnalyzerGraph([
-            GraphNode("<Operator>", RegExpAnalyzer("[><=]"), {null: null})
-          ], TypeOfTransition.symbol, Save.noSave)),
+          GraphAnalyzer(
+              AnalyzerGraph([
+                GraphNode(
+                    "<Operator>", RegExpAnalyzer("[><=]"), {null: null})
+              ], GraphTransition.toSymbol),
+              semanticAnalyzer.add),
           {"[a-zA-Z]": 4, "[+\\-\\d]": 5}),
-      GraphNode("<ConditionalRightOperandIdentifier>",
-          GraphAnalyzer(AnalyzerGraph.identifier(identifierGraph)), {null: 6}),
-      GraphNode("<ConditionalRightOperandConstant>",
-          GraphAnalyzer(AnalyzerGraph.constant(constantGraph)), {null: 6}),
-      const GraphNode(
-          "<THEN>", KeywordsAnalyzer(Keyword.THEN), {null: 7}),
+      GraphNode(
+          "<ConditionalRightOperandIdentifier>",
+          GraphAnalyzer(
+              AnalyzerGraph(identifierGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.identifier),
+          {null: 6}),
+      GraphNode(
+          "<ConditionalRightOperandConstant>",
+          GraphAnalyzer(AnalyzerGraph(constantGraph, GraphTransition.toSymbol),
+              semanticAnalyzer.constant),
+          {null: 6}),
+      GraphNode(
+          "<THEN>",
+          KeywordsAnalyzer(Keyword.THEN, semanticAnalyzer.add),
+          {null: 7}),
       GraphNode(
           "<Assignment>",
-          GraphAnalyzer(AnalyzerGraph(
-              assignmentGraph, TypeOfTransition.word, Save.noSave)),
+          GraphAnalyzer(AnalyzerGraph(assignmentGraph, GraphTransition.toWord),
+              SemanticAnalyzer.skip),
           {"ELSI": 8, "ELSE": 9, "EN": 11}),
-      const GraphNode(
-          "<ELSIF>", KeywordsAnalyzer(Keyword.ELSIF), {null: 2}),
-      const GraphNode("<ELSE>", KeywordsAnalyzer(Keyword.ELSE), {null: 10}),
+      GraphNode(
+          "<ELSIF>",
+          KeywordsAnalyzer(Keyword.ELSIF, semanticAnalyzer.add),
+          {null: 2}),
+      GraphNode(
+          "<ELSE>",
+          KeywordsAnalyzer(Keyword.ELSE, semanticAnalyzer.add),
+          {null: 10}),
       GraphNode(
           "<AssignmentAfterElse>",
-          GraphAnalyzer(AnalyzerGraph(
-              assignmentGraph, TypeOfTransition.word, Save.noSave)),
+          GraphAnalyzer(AnalyzerGraph(assignmentGraph, GraphTransition.toWord),
+              SemanticAnalyzer.skip),
           {"EN": 11}),
-      const GraphNode("<END>", KeywordsAnalyzer(Keyword.END), {";": 12}),
-      GraphNode("<;>", RegExpAnalyzer(";"), {null: null}),
-    ], TypeOfTransition.word));
+      GraphNode(
+          "<END>",
+          KeywordsAnalyzer(Keyword.END, semanticAnalyzer.add),
+          {";": 12}),
+      GraphNode(
+          "<;>",
+          RegExpAnalyzer.withSemantic(";", semanticAnalyzer.add),
+          {null: null}),
+    ], GraphTransition.toWord), SemanticAnalyzer.skip);
 
-    AnalyzerResult result = AnalyzerResult.empty();
     AnalyzerPosition position = (0, 0);
-    var (pos, exc, r) = analyzer.analyze(
-        position, "IF  R1 THEN  S1 := G  ELSIF  R2 < 0  THEN  D:= GFD  ELSIF  R6 = R5 THEN  S4 := 15.3 ELSE  GF := DCSX15  END;", result);
-    print(r?.prettyCode);
+    var (pos, exc, r) = analyzer.analyze(position,
+        "IF  THEN1 THEN  S1 := G  ELSIF  R2 < 0  THEN  D:= GFD  ELSIF  R6 = R5 THEN  S4 := 15.3 ELSE  GF := DCSX15  END;");
     if (exc != null) exc.display();
-    print(r?.constants.join(", "));
-    print(r?.identifiers.join(", "));
+    print(semanticAnalyzer.prettyCode);
+    print(semanticAnalyzer.constants.join(", "));
+    print(semanticAnalyzer.identifiers.join(", "));
 
     return const MaterialApp(
       home: Scaffold(

@@ -11,15 +11,7 @@ class GraphNode {
   const GraphNode(this.name, this.analyzer, this.nextStates);
 }
 
-enum TypeOfTransition {
-  word,
-  symbol
-}
-enum Save {
-  identifier,
-  constant,
-  noSave
-}
+enum GraphTransition { toWord, toSymbol }
 
 class Graph {
   final List<GraphNode> states;
@@ -36,25 +28,12 @@ class Graph {
   Graph(this.states);
 }
 
-
 class AnalyzerGraph extends Graph {
-  late TypeOfTransition typeOfTransition;
-  late Save saveToListOf;
-  AnalyzerGraph.root(super.states, this.typeOfTransition) {
-    saveToListOf = Save.noSave;
-  }
-  AnalyzerGraph.identifier(super.states) {
-    typeOfTransition = TypeOfTransition.symbol;
-    saveToListOf = Save.identifier;
-  }
-  AnalyzerGraph.constant(super.states) {
-    typeOfTransition = TypeOfTransition.symbol;
-    saveToListOf = Save.constant;
-  }
-  AnalyzerGraph(super.states, this.typeOfTransition, this.saveToListOf);
+  late GraphTransition transition;
+  AnalyzerGraph(super.states, this.transition);
 
   AnalysisTransitionFunction get next {
-    if (typeOfTransition == TypeOfTransition.word) {
+    if (transition == GraphTransition.toWord) {
       return nextWord;
     } else {
       return nextSymbol;
@@ -91,10 +70,10 @@ class AnalyzerGraph extends Graph {
         }
         return (
           position,
-          AnalyzerException(
-              position,
-              "Unexpected substring '$substring', the next state is unknown",
-              AnalyzerExceptionType.syntactic)
+          SyntacticAnalyzerException(
+            position,
+            "Unexpected substring '$substring', the next state is unknown",
+          )
         );
       }
 
@@ -111,8 +90,7 @@ class AnalyzerGraph extends Graph {
 
     return (
       position,
-      AnalyzerException(
-          position, "Unexpected end of the expression", AnalyzerExceptionType.syntactic)
+      SyntacticAnalyzerException(position, "Unexpected end of the expression")
     );
   }
 
@@ -122,7 +100,7 @@ class AnalyzerGraph extends Graph {
     AnalyzerPosition position = startPosition;
     if (position.$1 < lines.length && position.$2 < lines[position.$1].length) {
       for (String? pattern in currentNode?.nextStates.keys ?? []) {
-        if(pattern == null) continue;
+        if (pattern == null) continue;
         if (lines[position.$1][position.$2].contains(RegExp(pattern))) {
           currentNodeIndex = currentNode?.nextStates[pattern];
           return (position, null);
@@ -136,10 +114,10 @@ class AnalyzerGraph extends Graph {
 
     return (
       position,
-      AnalyzerException(
-          position,
-          "Unexpected character '${lines[position.$1][position.$2]}', next state undefined",
-          AnalyzerExceptionType.syntactic)
+      SyntacticAnalyzerException(
+        position,
+        "Unexpected character '${lines[position.$1][position.$2]}', next state undefined",
+      )
     );
   }
 }

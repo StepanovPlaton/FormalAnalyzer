@@ -7,10 +7,15 @@ typedef AnalyzerInformation = (
   AnalyzerException?,
   AnalyzerResult?
 );
-typedef AnalysisTransitionFunction = (AnalyzerPosition, AnalyzerException?) Function(
-    AnalyzerPosition position, String code, AnalyzerResult result);
+typedef AnalysisTransitionFunction = (AnalyzerPosition, AnalyzerException?)
+    Function(AnalyzerPosition position, String code, AnalyzerResult result);
+typedef AnalysisSemanticFunction = AnalyzerException? Function(
+    AnalyzerPosition position, AnalyzerResult result);
 
 abstract class Analyzer {
+  final AnalysisSemanticFunction semanticAction;
+  Analyzer(this.semanticAction);
+
   AnalyzerInformation analyze(
-      AnalyzerPosition startPosition, String code, AnalyzerResult result);
+      AnalyzerPosition startPosition, String code);
 }
