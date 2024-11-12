@@ -1,4 +1,4 @@
-import 'package:formal_analyzer/analyzer/analyzer.dart';
+import 'package:formal_analyzer/analyzer/types/types.dart';
 
 class GraphNode {
   final String name;

@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' show max;
 
 import 'package:formal_analyzer/analyzer/types/exceptions.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
@@ -62,7 +62,7 @@ class AnalyzerGraph extends Graph {
           AnalyzerException(
               position,
               "Unexpected substring '$substring', the next state is unknown",
-              ExceptionType.syntactic)
+              AnalyzerExceptionType.syntactic)
         );
       }
 
@@ -80,7 +80,7 @@ class AnalyzerGraph extends Graph {
     return (
       position,
       AnalyzerException(
-          position, "Unexpected end of the expression", ExceptionType.syntactic)
+          position, "Unexpected end of the expression", AnalyzerExceptionType.syntactic)
     );
   }
 
@@ -107,7 +107,7 @@ class AnalyzerGraph extends Graph {
       AnalyzerException(
           position,
           "Unexpected character '${lines[position.$1][position.$2]}', next state undefined",
-          ExceptionType.syntactic)
+          AnalyzerExceptionType.syntactic)
     );
   }
 }

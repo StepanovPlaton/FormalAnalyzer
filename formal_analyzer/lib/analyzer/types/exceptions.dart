@@ -1,12 +1,11 @@
-
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
-enum ExceptionType { syntactic, semantic, unexpected }
+enum AnalyzerExceptionType { syntactic, semantic, unexpected }
 
 class AnalyzerException {
-  AnalyzerPosition position;
-  String? message = "Analyzer Exception";
-  ExceptionType? type;
+  final AnalyzerPosition position;
+  final String message;
+  final AnalyzerExceptionType? type;
 
   AnalyzerException(this.position, this.message, this.type);
 

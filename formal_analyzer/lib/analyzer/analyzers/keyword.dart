@@ -1,4 +1,3 @@
-import 'package:formal_analyzer/analyzer/analyzer.dart';
 import 'package:formal_analyzer/analyzer/types/exceptions.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
@@ -50,7 +49,7 @@ class KeywordsAnalyzer implements Analyzer {
           position.$1,
           linePosition
         ), "${keyword.name} was expected, but only '${recognizedPattern + codeLine[linePosition]}' was detected",
-            ExceptionType.syntactic),
+            AnalyzerExceptionType.syntactic),
         result
       );
     }

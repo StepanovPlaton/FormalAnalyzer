@@ -7,11 +7,10 @@ typedef AnalyzerInformation = (
   AnalyzerException?,
   AnalyzerResult?
 );
-typedef AnalysisFunction = AnalyzerInformation Function(
-    AnalyzerPosition position, String code);
 typedef AnalysisTransitionFunction = (AnalyzerPosition, AnalyzerException?) Function(
     AnalyzerPosition position, String code, AnalyzerResult result);
 
-abstract class PatternAnalyzer {
-  AnalyzerInformation analyze(AnalyzerPosition position, String code);
+abstract class Analyzer {
+  AnalyzerInformation analyze(
+      AnalyzerPosition startPosition, String code, AnalyzerResult result);
 }
