@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:formal_analyzer/analyzer/analyzers/graph.dart';
 import 'package:formal_analyzer/analyzer/analyzers/regexp.dart';
 import 'package:formal_analyzer/analyzer/analyzers/keyword.dart';
-import 'package:formal_analyzer/analyzer/graph.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
-import 'package:formal_analyzer/analyzer/types/state.dart';
+import 'package:formal_analyzer/analyzer/types/graph.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
 void main() {

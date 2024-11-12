@@ -1,4 +1,4 @@
-import 'package:formal_analyzer/analyzer/types/exceptions.dart';
+import 'package:formal_analyzer/analyzer/types/exception.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 

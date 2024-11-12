@@ -1,4 +1,4 @@
-import 'package:formal_analyzer/analyzer/graph.dart';
+import 'package:formal_analyzer/analyzer/types/graph.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 

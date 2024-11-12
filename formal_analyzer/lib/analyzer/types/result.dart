@@ -1,4 +1,4 @@
-import 'package:formal_analyzer/analyzer/types/state.dart';
+import 'package:formal_analyzer/analyzer/types/graph.dart';
 
 class AnalyzerResult {
   String prettyCode = "";
