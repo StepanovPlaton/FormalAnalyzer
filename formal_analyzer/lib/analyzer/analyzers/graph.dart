@@ -3,30 +3,41 @@ import 'package:formal_analyzer/analyzer/types/graph.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
-class GraphAnalyzer implements Analyzer {
+class GraphAnalyzer extends Analyzer {
   final AnalyzerGraph graph;
-  @override
-  final AnalysisSemanticFunction semanticAction;
-  const GraphAnalyzer(this.graph, this.semanticAction);
+  GraphAnalyzer(this.graph, [super.semanticAction]);
 
   @override
-  AnalyzerInformation analyze(
-      AnalyzerPosition startPosition, String code) {
+  AnalyzerInformation analyze(String code, AnalyzerPosition startPosition) {
     AnalyzerPosition position = startPosition;
     AnalyzerResult result = AnalyzerResult.empty();
     while (graph.currentNode != null) {
+      result.log("Analyze state ${graph.currentNode?.name}");
       var (stepPosition, stepException, stepResult) =
-          graph.currentNode!.analyzer.analyze(position, code);
+          graph.currentNode!.analyzer.analyze(code, position);
       position = stepPosition;
       if (stepResult != null) result.add(stepResult);
-      if (stepException != null) return (position, stepException, result);
+      if (stepException != null) {
+        result.log(stepException.message);
+        return (position, stepException, result);
+      }
 
-      var (nextPosition, nextException) = graph.next(position, code, result);
+      result.log(
+          "Find next state (transition by ${graph.transition == GraphTransition.toWord ? "word" : "symbol"})");
+      var (nextPosition, nextException) = graph.next(position, code);
       position = nextPosition;
-      if (nextException != null) return (position, nextException, result);
+      if (nextException != null) {
+        result.log(nextException.message);
+        return (position, nextException, result);
+      }
     }
-    AnalyzerException? semanticException = semanticAction(position, result);
-    if (semanticException != null) return (position, semanticException, result);
+    if (semanticAction != null) {
+      AnalyzerException? semanticException = semanticAction!(position, result);
+      if (semanticException != null) {
+        result.log(semanticException.message);
+        return (position, semanticException, result);
+      }
+    }
     graph.currentNodeIndex = 0;
     return (position, null, result);
   }

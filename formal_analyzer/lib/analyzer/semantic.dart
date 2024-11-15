@@ -3,6 +3,9 @@ import 'package:formal_analyzer/analyzer/types/exception.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
+class SemanticResult {
+}
+
 class SemanticAnalyzer {
   String prettyCode = "";
   Set<String> constants = {};
@@ -13,6 +16,10 @@ class SemanticAnalyzer {
       null;
 
   AnalyzerException? add(AnalyzerPosition position, AnalyzerResult result) {
+    prettyCode += result.recognizedPattern.toUpperCase();
+    return null;
+  }
+  AnalyzerException? addWithSpace(AnalyzerPosition position, AnalyzerResult result) {
     prettyCode += "${result.recognizedPattern.toUpperCase()} ";
     return null;
   }

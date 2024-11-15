@@ -1,39 +1,40 @@
-import 'package:formal_analyzer/analyzer/semantic.dart';
 import 'package:formal_analyzer/analyzer/types/exception.dart';
 import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
-class RegExpAnalyzer implements Analyzer {
+class RegExpAnalyzer extends Analyzer {
   final String regExp;
-  @override
-  late AnalysisSemanticFunction semanticAction;
-
-  RegExpAnalyzer(this.regExp) {
-    semanticAction = SemanticAnalyzer.skip;
-  }
-  RegExpAnalyzer.withSemantic(this.regExp, this.semanticAction);
+  RegExpAnalyzer(this.regExp, [super.semanticAction]);
 
   @override
-  AnalyzerInformation analyze(AnalyzerPosition position, String code) {
+  AnalyzerInformation analyze(String code, AnalyzerPosition startPosition) {
     List<String> lines = code.split("\n");
-    String codeLine = lines[position.$1];
+    String codeLine = lines[startPosition.$1];
+    AnalyzerResult result = AnalyzerResult.empty();
     if (regExp == "") {
-      return (position, null, null);
+      return (startPosition, null, null);
     }
-    if (codeLine[position.$2].contains(RegExp(regExp))) {
-      AnalyzerResult result = AnalyzerResult(codeLine[position.$2]);
-      AnalyzerException? semanticException =
-          semanticAction((position.$1, position.$2 + 1), result);
-      return ((position.$1, position.$2 + 1), semanticException, result);
-    } else {
+    if (codeLine[startPosition.$2].contains(RegExp(regExp))) {
+      result.add(AnalyzerResult(codeLine[startPosition.$2]));
+      result.log(
+          "The '${codeLine[startPosition.$2]}' character matching expression '$regExp' was found");
+      AnalyzerException? semanticException;
+      if (semanticAction != null) {
+        semanticException =
+            semanticAction!((startPosition.$1, startPosition.$2 + 1), result);
+      }
       return (
-        position,
-        SyntacticAnalyzerException(
-          position,
-          "Symbol of the form '$regExp' was expected, but '${codeLine[position.$2]}' was received",
-        ),
-        null
+        (startPosition.$1, startPosition.$2 + 1),
+        semanticException,
+        result
       );
+    } else {
+      SyntacticAnalyzerException exception = SyntacticAnalyzerException(
+        startPosition,
+        "Symbol of the form '$regExp' was expected, but '${codeLine[startPosition.$2]}' was received",
+      );
+      result.log(exception.message);
+      return (startPosition, exception, result);
     }
   }
 }

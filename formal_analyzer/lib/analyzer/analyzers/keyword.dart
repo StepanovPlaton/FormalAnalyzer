@@ -18,40 +18,46 @@ enum Keyword {
   }
 }
 
-class KeywordsAnalyzer implements Analyzer {
+class KeywordsAnalyzer extends Analyzer {
   final Keyword keyword;
-  @override
-  final AnalysisSemanticFunction semanticAction;
-  const KeywordsAnalyzer(this.keyword, this.semanticAction);
+  KeywordsAnalyzer(this.keyword, [super.semanticAction]);
 
   @override
-  AnalyzerInformation analyze(AnalyzerPosition position, String code) {
+  AnalyzerInformation analyze(String code, AnalyzerPosition startPosition) {
     List<String> lines = code.split("\n");
-    String codeLine = lines[position.$1];
-    int linePosition = position.$2;
+    String codeLine = lines[startPosition.$1];
+    int linePosition = startPosition.$2;
     String recognizedPattern = "";
+      AnalyzerResult result = AnalyzerResult.empty();
     while (linePosition < codeLine.length &&
         keyword.name.contains(codeLine[linePosition])) {
       recognizedPattern += codeLine[linePosition];
       linePosition++;
     }
     if (recognizedPattern == keyword.name) {
-      AnalyzerResult result = AnalyzerResult(keyword.pretty);
-      AnalyzerException? semanticException =
-          semanticAction((position.$1, linePosition), result);
+      result.add(AnalyzerResult(keyword.pretty));
+      result.log("Found keyword ${keyword.name}");
+      AnalyzerException? semanticException;
+      if (semanticAction != null) {
+        semanticException =
+            semanticAction!((startPosition.$1, linePosition), result);
+        if (semanticException != null) result.log(semanticException.message);
+      }
       return (
-        (position.$1, linePosition),
+        (startPosition.$1, linePosition),
         semanticException,
-        AnalyzerResult(keyword.pretty)
+        result
       );
     } else {
-      return (
-        (position.$1, linePosition),
-        SyntacticAnalyzerException(
-          (position.$1, linePosition),
+      SyntacticAnalyzerException exception = SyntacticAnalyzerException(
+          (startPosition.$1, linePosition),
           "${keyword.name} was expected, but only '${recognizedPattern + codeLine[linePosition]}' was detected",
-        ),
-        null
+        );
+      result.log(exception.message);
+      return (
+        (startPosition.$1, linePosition),
+        exception,
+        result
       );
     }
   }

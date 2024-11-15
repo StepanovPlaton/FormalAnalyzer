@@ -1,7 +1,6 @@
 import 'dart:math' show max;
 
 import 'package:formal_analyzer/analyzer/types/exception.dart';
-import 'package:formal_analyzer/analyzer/types/result.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
 class GraphNode {
@@ -41,7 +40,7 @@ class AnalyzerGraph extends Graph {
   }
 
   (AnalyzerPosition, AnalyzerException?) nextWord(
-      AnalyzerPosition startPosition, String code, AnalyzerResult result) {
+      AnalyzerPosition startPosition, String code) {
     List<String> lines = code.split("\n");
     AnalyzerPosition position = startPosition;
     AnalyzerPosition? startWord;
@@ -95,7 +94,7 @@ class AnalyzerGraph extends Graph {
   }
 
   (AnalyzerPosition, AnalyzerException?) nextSymbol(
-      AnalyzerPosition startPosition, String code, AnalyzerResult result) {
+      AnalyzerPosition startPosition, String code) {
     List<String> lines = code.split("\n");
     AnalyzerPosition position = startPosition;
     if (position.$1 < lines.length && position.$2 < lines[position.$1].length) {
