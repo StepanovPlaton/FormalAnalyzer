@@ -4,10 +4,9 @@ import 'package:formal_analyzer/analyzer/types/exception.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 
 class GraphNode {
-  final String name;
   final Analyzer analyzer;
   final Map<String?, int?> nextStates;
-  const GraphNode(this.name, this.analyzer, this.nextStates);
+  const GraphNode(this.analyzer, this.nextStates);
 }
 
 enum GraphTransition { toWord, toSymbol }
@@ -47,6 +46,10 @@ class AnalyzerGraph extends Graph {
     String substring = "";
     int maxLengthOfPatterns =
         currentNode!.nextStates.keys.map((k) => k?.length ?? 1).reduce(max);
+        
+    if (position.$1 < lines.length-1 && position.$2 == lines[position.$1].length) {
+      position = (position.$1 + 1, 0);
+    }
     while (
         position.$1 < lines.length && position.$2 < lines[position.$1].length) {
       substring += lines[position.$1][position.$2];
@@ -56,7 +59,7 @@ class AnalyzerGraph extends Graph {
 
       for (String? pattern in currentNode!.nextStates.keys) {
         if (pattern == null) continue;
-        if (substring.contains(RegExp(pattern))) {
+        if (substring.toUpperCase().contains(RegExp(pattern))) {
           currentNodeIndex = currentNode?.nextStates[pattern];
           return (startWord!, null);
         }
@@ -78,6 +81,7 @@ class AnalyzerGraph extends Graph {
 
       position = (position.$1, position.$2 + 1);
       if (position.$2 == lines[position.$1].length) {
+        if(position.$1 == lines.length - 1) break;
         position = (position.$1 + 1, 0);
       }
     }
@@ -97,6 +101,9 @@ class AnalyzerGraph extends Graph {
       AnalyzerPosition startPosition, String code) {
     List<String> lines = code.split("\n");
     AnalyzerPosition position = startPosition;
+    if (position.$2 == lines[position.$1].length) {
+      return (position, null);
+    }
     if (position.$1 < lines.length && position.$2 < lines[position.$1].length) {
       for (String? pattern in currentNode?.nextStates.keys ?? []) {
         if (pattern == null) continue;

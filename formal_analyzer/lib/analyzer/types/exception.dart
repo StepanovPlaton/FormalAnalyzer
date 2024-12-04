@@ -12,6 +12,7 @@ class AnalyzerException {
   AnalyzerException(this.position, this.message);
 
   String toFormattedString(String code) {
+    if(code == "" || position.$1 >= code.split("\n").length) return "";
     String codeLine = code.split("\n")[position.$1];
     int start = max(0, position.$2 - 15);
     int end = min(position.$2 + 15, codeLine.length - 1);

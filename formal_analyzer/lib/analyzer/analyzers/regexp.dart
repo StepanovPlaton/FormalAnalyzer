@@ -14,14 +14,14 @@ class RegExpAnalyzer extends Analyzer {
     if (regExp == "") {
       return (startPosition, null, null);
     }
-    if (codeLine[startPosition.$2].contains(RegExp(regExp))) {
+    if (codeLine[startPosition.$2].toUpperCase().contains(RegExp(regExp))) {
       result.add(AnalyzerResult(codeLine[startPosition.$2]));
       result.log(
           "The '${codeLine[startPosition.$2]}' character matching expression '$regExp' was found");
       AnalyzerException? semanticException;
       if (semanticAction != null) {
         semanticException =
-            semanticAction!((startPosition.$1, startPosition.$2 + 1), result);
+            semanticAction!(startPosition, result);
       }
       return (
         (startPosition.$1, startPosition.$2 + 1),

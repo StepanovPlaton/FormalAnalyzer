@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:formal_analyzer/analyzer/analyzer.dart';
 import 'package:formal_analyzer/analyzer/semantic.dart';
+import 'package:formal_analyzer/analyzer/types/exception.dart';
 import 'package:formal_analyzer/analyzer/types/types.dart';
 import 'package:formal_analyzer/ui.dart';
 
 void main() {
   runApp(MaterialApp(
       theme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
       ),
       home: const MainApp()));
 }
@@ -21,7 +22,7 @@ class MainApp extends StatefulWidget {
 
 class AppState extends State<MainApp> {
   SemanticAnalyzer? semanticAnalyzer;
-  String? exceptionMessage;
+  AnalyzerException? exception;
   String? code;
   String? log;
 
@@ -36,17 +37,22 @@ class AppState extends State<MainApp> {
         SemanticAnalyzer newSemanticAnalyzer = SemanticAnalyzer();
         Analyzer analyzer =
             AnalyzerConstructor.createAnalyzer(newSemanticAnalyzer);
-        var (exception, result) = analyzer.beginAnalyze(newCode);
+        var (newException, result) = analyzer.beginAnalyze(newCode);
         setState(() {
           semanticAnalyzer = newSemanticAnalyzer;
-          exceptionMessage = exception?.toFormattedString(newCode);
+          exception = newException;
           code = newCode;
           log = result?.analysisLog.join("\n");
         });
-      }),
+    }),
       UI.outputField("Formatted code:", semanticAnalyzer?.prettyCode ?? "", 10),
     ], [
-      UI.outputField("Analysis exceptions:", exceptionMessage ?? "", 10),
+      UI.outputField(
+          "Analysis exceptions:",
+          code != null && code != "" && exception != null
+              ? exception!.toFormattedString(code!)
+              : "",
+          10),
       UI.outputField(
           "Identifiers:", (semanticAnalyzer?.identifiers ?? {}).join(", "), 1),
       UI.outputField(

@@ -42,7 +42,7 @@ abstract class UI {
                   controller: codeInputController,
                   keyboardType: TextInputType.multiline,
                   style:
-                      const TextStyle(fontFamilyFallback: <String>["Consolas"]),
+                      const TextStyle(fontFamily: "Consolas"),
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.all(10),
                     border: OutlineInputBorder(
@@ -81,7 +81,7 @@ abstract class UI {
               maxLines: lines,
               controller: prettyCodeController,
               keyboardType: TextInputType.multiline,
-              style: const TextStyle(fontFamilyFallback: <String>["Consolas"]),
+              style: const TextStyle(fontFamily: "Consolas"),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 border: OutlineInputBorder(

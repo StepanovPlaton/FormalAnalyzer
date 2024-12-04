@@ -8,8 +8,8 @@ enum Keyword {
   IF("K "),
   THEN("K\n\t"),
   ELSIF("\nK "),
-  ELSE("\nK "),
-  END("K");
+  ELSE("\nK\n\t"),
+  END("\nK");
 
   final String printPattern;
   const Keyword(this.printPattern);
@@ -30,11 +30,11 @@ class KeywordsAnalyzer extends Analyzer {
     String recognizedPattern = "";
       AnalyzerResult result = AnalyzerResult.empty();
     while (linePosition < codeLine.length &&
-        keyword.name.contains(codeLine[linePosition])) {
+        keyword.name.contains(codeLine[linePosition].toUpperCase())) {
       recognizedPattern += codeLine[linePosition];
       linePosition++;
     }
-    if (recognizedPattern == keyword.name) {
+    if (recognizedPattern.toUpperCase() == keyword.name) {
       result.add(AnalyzerResult(keyword.pretty));
       result.log("Found keyword ${keyword.name}");
       AnalyzerException? semanticException;
@@ -50,7 +50,7 @@ class KeywordsAnalyzer extends Analyzer {
       );
     } else {
       SyntacticAnalyzerException exception = SyntacticAnalyzerException(
-          (startPosition.$1, linePosition),
+          (startPosition.$1, linePosition-1),
           "${keyword.name} was expected, but only '${recognizedPattern + codeLine[linePosition]}' was detected",
         );
       result.log(exception.message);

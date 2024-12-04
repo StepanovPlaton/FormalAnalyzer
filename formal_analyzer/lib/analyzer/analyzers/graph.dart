@@ -12,7 +12,6 @@ class GraphAnalyzer extends Analyzer {
     AnalyzerPosition position = startPosition;
     AnalyzerResult result = AnalyzerResult.empty();
     while (graph.currentNode != null) {
-      result.log("Analyze state ${graph.currentNode?.name}");
       var (stepPosition, stepException, stepResult) =
           graph.currentNode!.analyzer.analyze(code, position);
       position = stepPosition;
@@ -32,7 +31,7 @@ class GraphAnalyzer extends Analyzer {
       }
     }
     if (semanticAction != null) {
-      AnalyzerException? semanticException = semanticAction!(position, result);
+      AnalyzerException? semanticException = semanticAction!((position.$1, position.$2-1), result);
       if (semanticException != null) {
         result.log(semanticException.message);
         return (position, semanticException, result);
